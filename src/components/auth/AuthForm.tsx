@@ -41,6 +41,11 @@ const AuthForm = () => {
         
         if (error) {
           console.error('Sign up error:', error);
+          if (error.message.includes('over_email_send_rate_limit')) {
+            const match = error.message.match(/(\d+)\s+seconds?/);
+            const waitTime = match ? match[1] : '60';
+            throw new Error(`Too many requests. Please wait ${waitTime} seconds before trying again.`);
+          }
           throw error;
         }
         
@@ -64,6 +69,10 @@ const AuthForm = () => {
             throw new Error('Invalid email or password. Please check your credentials and try again.');
           } else if (error.message.includes('Email not confirmed')) {
             throw new Error('Please check your email and click the confirmation link before signing in.');
+          } else if (error.message.includes('over_email_send_rate_limit')) {
+            const match = error.message.match(/(\d+)\s+seconds?/);
+            const waitTime = match ? match[1] : '60';
+            throw new Error(`Too many requests. Please wait ${waitTime} seconds before trying again.`);
           } else {
             throw error;
           }
